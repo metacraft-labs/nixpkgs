@@ -1,0 +1,14 @@
+{
+  "series": "metacraft",
+  "seriesTracks": "nixos-unstable",
+  "runners": {
+    "x86_64-linux": "ubuntu-latest",
+    "aarch64-darwin": "macos-latest"
+  },
+  "channels": [
+    { "name": "nixos-unstable", "systems": ["x86_64-linux"], "status": "active" },
+    { "name": "nixpkgs-unstable", "systems": ["x86_64-linux", "aarch64-darwin"], "status": "active" },
+    { "name": "nixos-26.05", "systems": ["x86_64-linux"], "status": "active" },
+    { "name": "nixpkgs-26.05-darwin", "systems": ["aarch64-darwin"], "status": "active" }
+  ]
+}
