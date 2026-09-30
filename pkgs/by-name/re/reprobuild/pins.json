@@ -1,0 +1,140 @@
+{
+  "version": "0.2.5",
+  "src": {
+    "owner": "metacraft-labs",
+    "repo": "reprobuild",
+    "rev": "38bcad0515a363bf928f8654435e87636c968796",
+    "hash": "sha256-FFsaoIAf4vdHThl0PnYPYJ/zX3XXdNvzyV14dzHgQH4="
+  },
+  "sources": {
+    "bearsslSrc": {
+      "input": "bearssl-src",
+      "owner": "status-im",
+      "repo": "nim-bearssl",
+      "rev": "9a4eed052abbded2d94feaf3f5bbd95a30ec4671",
+      "hash": "sha256-igLvQSJWDL6Gq+pXGrNMDhEl+srXfW0vyLFVh8r9GuY=",
+      "fetchSubmodules": true
+    },
+    "codetracerSrc": {
+      "input": "codetracer-src",
+      "owner": "metacraft-labs",
+      "repo": "codetracer",
+      "rev": "a9ef983ed1e7d9a60b85034b596f55ea8b2164f5",
+      "hash": "sha256-Pk98EPmG3d72vs0wyHkV2aIdu/ewTq56Wtn1C9NWVmM="
+    },
+    "ctTestRunnerSrc": {
+      "input": "reprobuild-ct-test-runner-src",
+      "owner": "metacraft-labs",
+      "repo": "reprobuild-ct-test-runner",
+      "rev": "43a9926c8a74fc5ea9c24d00a1d53f7a1dc2ae49",
+      "hash": "sha256-5cP8dO4YyKErfjTKYgY+OLT9C+VYtNDIApXEFBR/JTg="
+    },
+    "ctTraceFormatSrc": {
+      "input": "ct-trace-format-src",
+      "owner": "metacraft-labs",
+      "repo": "codetracer-trace-format-nim",
+      "rev": "bc7c5d256d0a4b1246f9a9bbb51a83071d3d8e26",
+      "hash": "sha256-feW0vlgU6JTVkCLnZ1iyS2FwjXQuRCXHr3V+27oyDAw="
+    },
+    "ioMonSrc": {
+      "input": "io-mon-src",
+      "owner": "metacraft-labs",
+      "repo": "io-mon",
+      "rev": "279a17be71daca6ae4178feb4e6ef1e866a82d2a",
+      "hash": "sha256-WE1pQg4RIxQnMMAs3C0GcPtONHptn5T5LayDonSlChY="
+    },
+    "nimcryptoSrc": {
+      "input": "nimcrypto-src",
+      "owner": "cheatfate",
+      "repo": "nimcrypto",
+      "rev": "69eec0375dd146aede41f920c702c531bfe89c6b",
+      "hash": "sha256-Z6oaGzRiai/hLdudDb/VP6euoiEKG6T4sivucfmdFyM="
+    },
+    "runquotaSrc": {
+      "input": "runquota-src",
+      "owner": "metacraft-labs",
+      "repo": "runquota",
+      "rev": "f4f0f93a3b93d05a48b80859df22bae32fcb5d3c",
+      "hash": "sha256-NWWfILeayxQ8SVSa8WfHT3fqkqYuSEMbYQAJ9uqDOzw="
+    },
+    "shmGsetSrc": {
+      "input": "nim-shm-gset-src",
+      "owner": "metacraft-labs",
+      "repo": "nim-shm-gset",
+      "rev": "c646982b354cb5b1fa8734f94b951a660419d75c",
+      "hash": "sha256-nO7XSWxBWrLgL8d9q1zhTcGMMjGokZKjYtX9byb9/Vk="
+    },
+    "shmQueueSrc": {
+      "input": "nim-shm-queue-src",
+      "owner": "metacraft-labs",
+      "repo": "nim-shm-queue",
+      "rev": "5a8e43b52fa202859658692c9f8432967f3971ea",
+      "hash": "sha256-QPYS3OJPza6M2l1FMKa+jt3+mIBHCHWGkLOb9jAKMHs="
+    },
+    "stackableHooksSrc": {
+      "input": "nim-stackable-hooks-src",
+      "owner": "metacraft-labs",
+      "repo": "nim-stackable-hooks",
+      "rev": "72f578249e9d8bbca8e3705c8a41ed5085c05bf9",
+      "hash": "sha256-X8hF8RFp8Dx50Wc2Y41VJ0KV7FkQgEFAqx6R7W5yhu8="
+    },
+    "testAdaptersSrc": {
+      "input": "reprobuild-test-adapters-src",
+      "owner": "metacraft-labs",
+      "repo": "reprobuild-test-adapters",
+      "rev": "9445a8c5ec92754481041537342f4374afa10dca",
+      "hash": "sha256-vcm1w1cKQl6eaqas1mfVtm3EF8vfiS++zwZ6cBIZbHU="
+    }
+  },
+  "nimForkSources": {
+    "checksumsSrc": {
+      "input": "nim-checksums-src",
+      "owner": "nim-lang",
+      "repo": "checksums",
+      "rev": "0b8e46379c5bc1bf73d8b3011908389c60fb9b98",
+      "hash": "sha256-xC11sD13OTMMUY4F5CrF1XxKSigLtIPt2XQCcQOFNdM="
+    },
+    "csourcesSrc": {
+      "input": "nim-csources-src",
+      "owner": "nim-lang",
+      "repo": "csources_v3",
+      "rev": "eeab3ac46e93f10efda8e58c4db02b9438319d71",
+      "hash": "sha256-pTcm2y+HDOuTol8DyoJMOMHsUA6QrgwGdfcOu1NX4PU="
+    },
+    "forkSrc": {
+      "input": "nim-fork-src",
+      "owner": "metacraft-labs",
+      "repo": "nim",
+      "rev": "1812157695c0bdeefc67e914925726c66149982a",
+      "hash": "sha256-kHFM8EsJT9eakq2i470AqHplbokgnRA19donFPOoqVQ="
+    },
+    "nimonySrc": {
+      "input": "nim-nimony-src",
+      "owner": "nim-lang",
+      "repo": "nimony",
+      "rev": "bbfb21529845567c55b67d176354daef0e7d6c29",
+      "hash": "sha256-x7dvzyVW+fA5QkDVrjpnjQB/A3lYekO8HqczrVBUxG8="
+    },
+    "resultsSrc": {
+      "input": "nim-results-src",
+      "owner": "metacraft-labs",
+      "repo": "nim-result",
+      "rev": "df8113dda4c2d74d460a8fa98252b0b771bf1f27",
+      "hash": "sha256-KbNqt0FMuzDF4X+XM6JEaZJBypLDnvVPpnBpE7Sq6sA="
+    },
+    "stewSrc": {
+      "input": "nim-stew-src",
+      "owner": "status-im",
+      "repo": "nim-stew",
+      "rev": "83eb1157963b7f49351dbdd858355fa990bbe23c",
+      "hash": "sha256-KcxneFNUxFRcJGgOIRIcMDPy/Z9JelKpvDSfhnkQ6IA="
+    },
+    "traceFormatSrc": {
+      "input": "ct-trace-format-src",
+      "owner": "metacraft-labs",
+      "repo": "codetracer-trace-format-nim",
+      "rev": "bc7c5d256d0a4b1246f9a9bbb51a83071d3d8e26",
+      "hash": "sha256-feW0vlgU6JTVkCLnZ1iyS2FwjXQuRCXHr3V+27oyDAw="
+    }
+  }
+}
