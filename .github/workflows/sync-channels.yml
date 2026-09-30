@@ -36,7 +36,7 @@ jobs:
       series_len: ${{ steps.plan.outputs.series_len }}
       series_head: ${{ steps.plan.outputs.series_head }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - id: plan
         run: scripts/sync.sh plan
         env:
@@ -86,7 +86,7 @@ jobs:
     permissions:
       issues: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - env:
           GH_TOKEN: ${{ github.token }}
         run: |

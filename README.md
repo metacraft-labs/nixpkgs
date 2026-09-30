@@ -126,13 +126,20 @@ runs **daily at 04:23 UTC** and on demand. For each channel in
 2. **build** every package the series touches, on each system the channel
    serves (GitHub-hosted `ubuntu-latest` and `macos-latest`). A package whose
    `meta.platforms` excludes a system is skipped there. The packages' own
-   checks run as part of the build: `reprobuild` checks that `repro
-   --version` reports the packaged version.
+   checks run as part of the build (`reprobuild` checks that `repro
+   --version` reports the packaged version), and then
+   [`scripts/smoke.sh`](scripts/smoke.sh) uses each package: on Linux,
+   `repro build` builds and runs a C/Make example project.
 3. **publish** only if every build of that channel is green: force-push the
    channel branch, with a lease on the tip the run started from. **A broken
    rebase or build never replaces a working branch.** Each published revision
    is also kept under `refs/archive/<channel>/<timestamp>`, so the revision a
    user's `flake.lock` names stays fetchable after the branch moves on.
+
+4. **verify** the published branch the way a user installs from it:
+   `nix build github:metacraft-labs/nixpkgs/<channel>#<package>`, then
+   `nix profile install` into a throwaway profile and the same smoke test.
+   A failure here cannot un-publish, so it opens the channel's issue.
 
 After `nixos-unstable` publishes, `metacraft` itself is moved onto the same
 upstream commit (again with a lease, so a push made during the run wins).

@@ -1,4 +1,5 @@
-# One channel: rebase -> build on every system the channel serves -> publish.
+# One channel: rebase -> build and smoke-test on every system the channel
+# serves -> publish -> verify by installing from the published branch.
 # Called once per channel by sync-channels.yml. Publishing needs every build of
 # this channel to be green, so a broken rebase never replaces a working branch;
 # other channels are independent.
@@ -45,7 +46,7 @@ jobs:
       changed: ${{ steps.rebase.outputs.changed }}
       systems: ${{ steps.systems.outputs.systems }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - id: rebase
         run: scripts/sync.sh rebase "${{ inputs.channel }}"
       - id: systems
@@ -54,13 +55,13 @@ jobs:
             '.runners as $r | .channels[] | select(.name == $c)
              | [.systems[] | {system: ., runner: $r[.]}]' channels.json)
           echo "systems=$systems" >> "$GITHUB_OUTPUT"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: series-${{ inputs.channel }}
           path: ${{ runner.temp }}/series.bundle
           retention-days: 7
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: failure-rebase-${{ inputs.channel }}
           path: ${{ runner.temp }}/failure.md
@@ -79,7 +80,7 @@ jobs:
       UPSTREAM_SHA: ${{ needs.rebase.outputs.upstream_sha }}
       RESULT_SHA: ${{ needs.rebase.outputs.result_sha }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Free disk space
         if: runner.os == 'Linux'
         run: |
@@ -91,14 +92,14 @@ jobs:
             experimental-features = nix-command flakes
             max-jobs = auto
             cores = 0
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: series-${{ inputs.channel }}
           path: ${{ runner.temp }}
       - run: scripts/sync.sh checkout
       - run: scripts/sync.sh build "${{ matrix.system }}"
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: failure-build-${{ inputs.channel }}-${{ matrix.system }}
           path: ${{ runner.temp }}/failure.md
@@ -112,8 +113,8 @@ jobs:
       RESULT_SHA: ${{ needs.rebase.outputs.result_sha }}
       OLD_SHA: ${{ needs.rebase.outputs.old_sha }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: series-${{ inputs.channel }}
           path: ${{ runner.temp }}
@@ -136,13 +137,48 @@ jobs:
           "Resolved: ${{ inputs.channel }} was published as ${{ env.RESULT_SHA }} by
           ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 
+  verify:
+    needs: [rebase, publish]
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.rebase.outputs.systems) }}
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 330
+    env:
+      UPSTREAM_SHA: ${{ needs.rebase.outputs.upstream_sha }}
+      RESULT_SHA: ${{ needs.rebase.outputs.result_sha }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Free disk space
+        if: runner.os == 'Linux'
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL
+      - uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            max-jobs = auto
+            cores = 0
+      - uses: actions/download-artifact@v8
+        with:
+          name: series-${{ inputs.channel }}
+          path: ${{ runner.temp }}
+      - run: scripts/sync.sh checkout
+      - run: scripts/sync.sh verify "${{ inputs.channel }}" "${{ matrix.system }}"
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: failure-verify-${{ inputs.channel }}-${{ matrix.system }}
+          path: ${{ runner.temp }}/failure.md
+          if-no-files-found: ignore
+
   report:
-    needs: [rebase, build, publish]
+    needs: [rebase, build, publish, verify]
     if: failure()
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: failure-*-${{ inputs.channel }}*
           path: ${{ runner.temp }}/failures
@@ -153,8 +189,8 @@ jobs:
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           {
-            echo "The daily sync of \`$CHANNEL\` failed. The branch was **not** changed;"
-            echo "it still holds its last green state."
+            echo "The sync of \`$CHANNEL\` failed. If the rebase or a build failed, the branch"
+            echo "was **not** changed and still holds its last green state."
             echo
             echo "Run: $RUN_URL"
             echo

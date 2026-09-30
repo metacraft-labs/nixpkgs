@@ -8,6 +8,8 @@
 #   sync.sh checkout             materialise the rebased tree from the bundle
 #   sync.sh build   <system>     build every carried package available on <system>
 #   sync.sh publish <channel>    push the rebased tree to <channel>
+#   sync.sh verify  <channel> <system>
+#                                install from the published branch and smoke-test
 #
 # The carried series is the commits of the `metacraft` branch that are not in
 # upstream NixOS/nixpkgs (see README.md). It may only touch pkgs/by-name/.
@@ -19,6 +21,7 @@ CONFIG="${CONFIG:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/channels.json
 WORK="${WORK:-${RUNNER_TEMP:-/tmp}/nixpkgs}"
 BUNDLE="${BUNDLE:-${RUNNER_TEMP:-/tmp}/series.bundle}"
 SERIES_BRANCH=$(jq -r .series "$CONFIG")
+SCRIPTS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 out() { # key=value to the step outputs (or stdout outside Actions)
   if [[ -n "${GITHUB_OUTPUT:-}" ]]; then echo "$1" >>"$GITHUB_OUTPUT"; fi
@@ -198,7 +201,14 @@ cmd_build() {
     fi
     echo "::group::nix build $attr ($system)"
     if nix build --impure -L --file . "$attr" --out-link "result-$attr"; then
-      built+=("$attr=$(readlink "result-$attr")")
+      echo "::endgroup::"
+      echo "::group::smoke test $attr ($system)"
+      if VERSION=$(nix eval --impure --raw --file . "$attr.version") WORK="$WORK" \
+        bash "$SCRIPTS/smoke.sh" "$attr" "$(readlink "result-$attr")" "$system"; then
+        built+=("$attr=$(readlink "result-$attr")")
+      else
+        failed+=("$attr (smoke test)")
+      fi
     else
       failed+=("$attr")
     fi
@@ -212,6 +222,48 @@ cmd_build() {
   if [[ ${#failed[@]} -gt 0 ]]; then
     printf 'Build failed on %s: %s\n' "$system" "${failed[*]}" >"${RUNNER_TEMP:-/tmp}/failure.md"
     die "build failed on $system: ${failed[*]}"
+  fi
+}
+
+# ---------------------------------------------------------------------------
+# After publishing: install from the published branch exactly as a user
+# does (`nix build github:…/<channel>#pkg`, `nix profile install`) and
+# smoke-test the result. The branch is already published; a failure here
+# opens the channel's issue.
+cmd_verify() {
+  local channel=$1 system=$2 attr available ref rev profile failed=()
+  : "${RESULT_SHA:?}" "${UPSTREAM_SHA:?}"
+  export NIXPKGS_ALLOW_UNFREE=1
+  ref="github:$FORK/$channel"
+  rev=$(nix flake metadata --json --refresh "$ref" | jq -r .locked.rev)
+  if [[ "$rev" != "$RESULT_SHA" ]]; then
+    echo "::notice::$channel moved on to $rev since this run published $RESULT_SHA; not verifying"
+    return 0
+  fi
+  cd "$WORK"
+  for attr in $(carried_packages); do
+    available=$(nix eval --impure --raw --expr "
+      let pkgs = import ./. { system = \"$system\"; };
+          p = pkgs.$attr;
+      in if pkgs.lib.meta.availableOn pkgs.stdenv.hostPlatform p && !(p.meta.broken or false)
+         then \"yes\" else \"no\"")
+    [[ "$available" == yes ]] || continue
+    profile="${RUNNER_TEMP:-/tmp}/profile-$attr"
+    echo "::group::$ref#$attr ($system)"
+    if nix build --impure -L --no-link "$ref#$attr" &&
+      nix profile install --impure --profile "$profile" "$ref#$attr" &&
+      VERSION=$(nix eval --impure --raw "$ref#$attr.version") WORK="$WORK" \
+        bash "$SCRIPTS/smoke.sh" "$attr" "$profile" "$system"; then
+      echo "- verified: \`nix profile install $ref#$attr\` on $system" | summary
+    else
+      failed+=("$attr")
+    fi
+    echo "::endgroup::"
+  done
+  if [[ ${#failed[@]} -gt 0 ]]; then
+    printf 'Installing from the published %s failed on %s: %s\n' \
+      "$channel" "$system" "${failed[*]}" >"${RUNNER_TEMP:-/tmp}/failure.md"
+    die "verification of published $channel failed on $system: ${failed[*]}"
   fi
 }
 
@@ -253,5 +305,6 @@ case "${1:-}" in
   checkout) cmd_checkout ;;
   build) cmd_build "$2" ;;
   publish) cmd_publish "$2" ;;
-  *) die "usage: $0 plan|rebase <channel>|checkout|build <system>|publish <channel>" ;;
+  verify) cmd_verify "$2" "$3" ;;
+  *) die "usage: $0 plan|rebase <channel>|checkout|build <system>|publish <channel>|verify <channel> <system>" ;;
 esac
