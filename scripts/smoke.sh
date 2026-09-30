@@ -43,7 +43,7 @@ case "$attr" in
     fi
     ;;
   codetracer)
-    got=$("$prefix/bin/ct" version 2>&1 | tr -d '\033' | sed 's/\[[0-9;]*m//g')
+    got=$("$prefix/bin/ct" version 2>&1 | tr -d '\033' | sed 's/\[[0-9;]*m//g') || true
     echo "ct version: $got"
     grep -q "CodeTracer version: $version" <<<"$got" ||
       { echo "::error::expected 'CodeTracer version: $version'"; exit 1; }

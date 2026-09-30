@@ -83,7 +83,13 @@ nix profile upgrade --all     # later, to update
 ```
 
 `codetracer` is unfree: set `nixpkgs.config.allowUnfree = true`, or
-`NIXPKGS_ALLOW_UNFREE=1` together with `--impure` on the command line.
+`NIXPKGS_ALLOW_UNFREE=1` together with `--impure` on the command line. It runs
+its AppImage inside bubblewrap, which needs unprivileged user namespaces; on
+Ubuntu 24.04 and later these are restricted by AppArmor
+(`kernel.apparmor_restrict_unprivileged_userns`).
+
+There is no binary cache for these branches yet: the first install builds
+`reprobuild` and its Nim compiler from source (about 15 minutes on 4 cores).
 
 Never install from a product repository's own flake at `dev`: that is
 unreleased code under a release's name.
