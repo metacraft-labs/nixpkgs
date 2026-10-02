@@ -1,0 +1,13 @@
+{
+  "platforms": {
+    "aarch64-darwin": {
+      "hash": "sha256-ZCKukc1so1zc/CdOUaq8M6n332tTZpFBkMWlbrJ0VEo=",
+      "url": "https://github.com/metacraft-labs/runquota/releases/download/v0.1.0/runquota-0.1.0-darwin-aarch64.tar.gz"
+    },
+    "x86_64-linux": {
+      "hash": "sha256-qhyfa4vlLM3VDF/vxnbtUTCjkPfQteO/gfWGSGchHa4=",
+      "url": "https://github.com/metacraft-labs/runquota/releases/download/v0.1.0/runquota-0.1.0-linux-x86_64.tar.gz"
+    }
+  },
+  "version": "0.1.0"
+}
