@@ -17,6 +17,10 @@ if [[ -n "$main" ]]; then
 fi
 
 case "$attr" in
+  gosti|io-mon|runquota)
+    nix shell --impure --file "$WORK" python3 --command \
+      python3 "$(dirname "$0")/check-tool-package.py" "$attr" "$prefix" "$system" "$version"
+    ;;
   reprobuild)
     got=$("$prefix/bin/repro" --version)
     echo "repro --version: $got"

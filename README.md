@@ -30,9 +30,13 @@ upstream support, so no branch is kept for them.
 |---|---|---|---|
 | `reprobuild` (`repro`) | 0.2.5 | x86_64-linux, aarch64-darwin (checked); aarch64-linux, x86_64-darwin (declared) | not submitted: builds with a fork of the Nim compiler |
 | `codetracer` (`ct`) | 25.11.1 | x86_64-linux | not submitted: prebuilt unfree binary |
+| `gosti` (`vm-harness` alias) | 0.1.0 | x86_64-linux, aarch64-darwin | initial binary packaging under qualification |
+| `io-mon` | 0.1.0 | x86_64-linux, aarch64-darwin | initial binary packaging under qualification |
+| `runquota` (`runquotad` daemon) | 0.1.0 | x86_64-linux, aarch64-darwin | initial binary packaging under qualification |
 
-Every package is on every channel branch, at the version of its latest stable
-release. Each package's `package.nix` explains its upstreaming status.
+The three new tool recipes are being qualified for channel publication; their
+presence on `metacraft` alone does not establish availability on every channel.
+Other packages are on every channel branch, at their latest stable version. Each package's `package.nix` explains its upstreaming status.
 
 ## Installing
 
@@ -187,7 +191,16 @@ git push origin metacraft
 gh workflow run sync-channels.yml -R metacraft-labs/nixpkgs   # don't wait for the daily run
 ```
 
-Each package directory has an `update.sh` (also its `passthru.updateScript`).
+Gosti, io-mon and RunQuota pin the GitHub archive in `release.json`; run their
+`update.py VERSION` to check the release checksum manifest and refresh both
+platform pins. Their complete payloads live unchanged under `libexec/<product>`.
+Linux uses an FHS wrapper, which requires unprivileged user namespaces, as
+CodeTracer does. macOS uses direct command links and preserves release
+signatures. The channel gate compares every payload file and exercises Gosti's
+noop backend, io-mon's real file capture and RunQuota's real daemon/client lease,
+both before publication and after installation into a temporary profile.
+
+Reprobuild and CodeTracer each have an `update.sh` (also their `passthru.updateScript`).
 Run without a version, it takes the latest published GitHub release.
 `reprobuild/update.sh` copies the release's own build recipe verbatim from
 the tag and regenerates `pins.json` from the tag's `flake.lock`. If a release
