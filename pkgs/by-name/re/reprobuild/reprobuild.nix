@@ -1,4 +1,4 @@
-# Synced verbatim from metacraft-labs/reprobuild v0.2.5 (38bcad0515a363bf928f8654435e87636c968796)
+# Synced verbatim from metacraft-labs/reprobuild v0.2.6 (466bd8d7a4192786f836bf5f74a119bcf15ff05d)
 #   nix/pkgs/by-name/re/reprobuild/package.nix
 # by ./update.sh. Do not edit here: change it in reprobuild, release, re-run
 # ./update.sh. The default source arguments below are not used by this
@@ -111,8 +111,8 @@
   ioMonSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
     repo = "io-mon";
-    rev = "279a17be71daca6ae4178feb4e6ef1e866a82d2a";
-    hash = "sha256-WE1pQg4RIxQnMMAs3C0GcPtONHptn5T5LayDonSlChY=";
+    rev = "53994c0ca76f263ff04f046b2f99d98a038d41f3";
+    hash = "sha256-C59v0x/56TnymTBVYCKF3lmaUHeny21iXofckafOuF0=";
   },
   shmGsetSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
