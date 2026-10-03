@@ -1,10 +1,10 @@
 {
-  "version": "0.2.5",
+  "version": "0.2.6",
   "src": {
     "owner": "metacraft-labs",
     "repo": "reprobuild",
-    "rev": "38bcad0515a363bf928f8654435e87636c968796",
-    "hash": "sha256-FFsaoIAf4vdHThl0PnYPYJ/zX3XXdNvzyV14dzHgQH4="
+    "rev": "466bd8d7a4192786f836bf5f74a119bcf15ff05d",
+    "hash": "sha256-/gBGY4Fl4/lOsXZaiISNeGPL7jmDh340itatCpSj98k="
   },
   "sources": {
     "bearsslSrc": {
@@ -19,15 +19,15 @@
       "input": "codetracer-src",
       "owner": "metacraft-labs",
       "repo": "codetracer",
-      "rev": "a9ef983ed1e7d9a60b85034b596f55ea8b2164f5",
-      "hash": "sha256-Pk98EPmG3d72vs0wyHkV2aIdu/ewTq56Wtn1C9NWVmM="
+      "rev": "cbce5bb6616e9d86b0d9c58c5245f1cb01fe9e3d",
+      "hash": "sha256-6FevM4BOtzxSjjwRsJS8V9wtLFC5vELNH5z7xhRHN0c="
     },
     "ctTestRunnerSrc": {
       "input": "reprobuild-ct-test-runner-src",
       "owner": "metacraft-labs",
       "repo": "reprobuild-ct-test-runner",
-      "rev": "43a9926c8a74fc5ea9c24d00a1d53f7a1dc2ae49",
-      "hash": "sha256-5cP8dO4YyKErfjTKYgY+OLT9C+VYtNDIApXEFBR/JTg="
+      "rev": "6827c9a01abd9c2677fb2c1ce4ac014cebc24e03",
+      "hash": "sha256-HMVirFm9MC/h5wNClI47PvS4wJO2TrrvvrkZC7Jdh3c="
     },
     "ctTraceFormatSrc": {
       "input": "ct-trace-format-src",
@@ -40,8 +40,8 @@
       "input": "io-mon-src",
       "owner": "metacraft-labs",
       "repo": "io-mon",
-      "rev": "279a17be71daca6ae4178feb4e6ef1e866a82d2a",
-      "hash": "sha256-WE1pQg4RIxQnMMAs3C0GcPtONHptn5T5LayDonSlChY="
+      "rev": "53994c0ca76f263ff04f046b2f99d98a038d41f3",
+      "hash": "sha256-C59v0x/56TnymTBVYCKF3lmaUHeny21iXofckafOuF0="
     },
     "nimcryptoSrc": {
       "input": "nimcrypto-src",
@@ -75,15 +75,15 @@
       "input": "nim-stackable-hooks-src",
       "owner": "metacraft-labs",
       "repo": "nim-stackable-hooks",
-      "rev": "72f578249e9d8bbca8e3705c8a41ed5085c05bf9",
-      "hash": "sha256-X8hF8RFp8Dx50Wc2Y41VJ0KV7FkQgEFAqx6R7W5yhu8="
+      "rev": "71f2aae9c68132c5200b78af24f10e7c9575659f",
+      "hash": "sha256-5uY7aUB8PTnct1qoTMrX4QVFQhWSqtAEE0GcmlY2QqE="
     },
     "testAdaptersSrc": {
       "input": "reprobuild-test-adapters-src",
       "owner": "metacraft-labs",
       "repo": "reprobuild-test-adapters",
-      "rev": "9445a8c5ec92754481041537342f4374afa10dca",
-      "hash": "sha256-vcm1w1cKQl6eaqas1mfVtm3EF8vfiS++zwZ6cBIZbHU="
+      "rev": "d7d8145b1408f59cc6f9aac8345188ac4f13c57c",
+      "hash": "sha256-9mIJR7JZ/OL3+abBocxsBWtsH6v0LFaINwqoRPcvsI8="
     }
   },
   "nimForkSources": {
