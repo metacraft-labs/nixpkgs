@@ -1,5 +1,6 @@
 # One channel: rebase -> build and smoke-test on every system the channel
-# serves -> publish -> verify by installing from the published branch.
+# serves -> publish `<channel>-metacraft` (and, during the transition window,
+# the unsuffixed `<channel>`) -> verify by installing from the published branch.
 # Called once per channel by sync-channels.yml. Publishing needs every build of
 # this channel to be green, so a broken rebase never replaces a working branch;
 # other channels are independent.
@@ -43,6 +44,7 @@ jobs:
       upstream_sha: ${{ steps.rebase.outputs.upstream_sha }}
       result_sha: ${{ steps.rebase.outputs.result_sha }}
       old_sha: ${{ steps.rebase.outputs.old_sha }}
+      legacy_old_sha: ${{ steps.rebase.outputs.legacy_old_sha }}
       changed: ${{ steps.rebase.outputs.changed }}
       systems: ${{ steps.systems.outputs.systems }}
     steps:
@@ -117,6 +119,7 @@ jobs:
       UPSTREAM_SHA: ${{ needs.rebase.outputs.upstream_sha }}
       RESULT_SHA: ${{ needs.rebase.outputs.result_sha }}
       OLD_SHA: ${{ needs.rebase.outputs.old_sha }}
+      LEGACY_OLD_SHA: ${{ needs.rebase.outputs.legacy_old_sha }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8

@@ -7,12 +7,18 @@
 #   sync.sh rebase  <channel>    rebase the series onto upstream <channel>
 #   sync.sh checkout             materialise the rebased tree from the bundle
 #   sync.sh build   <system>     build every carried package available on <system>
-#   sync.sh publish <channel>    push the rebased tree to <channel>
+#   sync.sh publish <channel>    push the rebased tree to <channel>-metacraft
 #   sync.sh verify  <channel> <system>
 #                                install from the published branch and smoke-test
 #
 # The carried series is the commits of the `metacraft` branch that are not in
 # upstream NixOS/nixpkgs (see README.md). It may only touch pkgs/by-name/.
+#
+# <channel> is always the UPSTREAM channel name (`nixos-26.05`). The fork
+# branch that carries it is that name plus channels.json's "branchSuffix"
+# (`nixos-26.05-metacraft`). While channels.json's "legacyBranches.publish" is
+# true, every revision is also published under the old unsuffixed name, in the
+# same atomic push (README.md, "Branch names").
 set -euo pipefail
 
 FORK="${FORK:-metacraft-labs/nixpkgs}"
@@ -21,6 +27,7 @@ CONFIG="${CONFIG:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/channels.json
 WORK="${WORK:-${RUNNER_TEMP:-/tmp}/nixpkgs}"
 BUNDLE="${BUNDLE:-${RUNNER_TEMP:-/tmp}/series.bundle}"
 SERIES_BRANCH=$(jq -r .series "$CONFIG")
+BRANCH_SUFFIX=$(jq -r '.branchSuffix // ""' "$CONFIG")
 SCRIPTS="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 out() { # key=value to the step outputs (or stdout outside Actions)
@@ -31,6 +38,14 @@ summary() { if [[ -n "${GITHUB_STEP_SUMMARY:-}" ]]; then cat >>"$GITHUB_STEP_SUM
 die() { echo "::error::$*" >&2; exit 1; }
 
 git_in() { git -C "$WORK" "$@"; }
+
+# The fork branch that carries upstream <channel>.
+branch_of() { echo "$1$BRANCH_SUFFIX"; }
+# Whether the old unsuffixed names are still published (the transition window).
+legacy_publish() {
+  [[ -n "$BRANCH_SUFFIX" && "$(jq -r '.legacyBranches.publish // false' "$CONFIG")" == true ]]
+}
+remote_sha() { git ls-remote "https://github.com/$FORK.git" "$1" | cut -f1; }
 
 init_work() {
   rm -rf "$WORK"
@@ -84,6 +99,15 @@ cmd_plan() {
   done
   out "untracked_release=${missing[*]:-}"
 
+  # The transition window has an end date; past it, somebody must freeze the
+  # unsuffixed branches (README.md, "Branch names").
+  local legacy_until="" overdue=""
+  if legacy_publish; then
+    legacy_until=$(jq -r '.legacyBranches.until // ""' "$CONFIG")
+    if [[ -n "$legacy_until" && "$(date -u +%F)" > "$legacy_until" ]]; then overdue=$legacy_until; fi
+  fi
+  out "legacy_overdue=$overdue"
+
   {
     echo "### Carried series"
     echo
@@ -93,7 +117,15 @@ cmd_plan() {
     echo "$files"
     echo '```'
     echo
-    echo "Channels: \`$matrix\`"
+    echo "Channels: \`$matrix\`, published as \`<channel>$BRANCH_SUFFIX\`"
+    if legacy_publish; then
+      echo
+      echo "Also published under the unsuffixed names until ${legacy_until:-<no end date>}."
+    fi
+    if [[ -n "$overdue" ]]; then
+      echo
+      echo "**The unsuffixed names are past their end date ($overdue): freeze them.**"
+    fi
     if [[ ${#missing[@]} -gt 0 ]]; then
       echo
       echo "**Upstream has ${missing[*]}, which channels.json does not list.**"
@@ -141,28 +173,38 @@ cmd_rebase() {
   local result_sha
   result_sha=$(git_in rev-parse result)
 
-  # What the channel branch holds now, and whether this run would change it.
-  local old_sha changed=true
-  old_sha=$(git ls-remote "https://github.com/$FORK.git" "refs/heads/$channel" | cut -f1)
-  if [[ -n "$old_sha" ]]; then
-    if git_in fetch -q --no-tags --depth=$((SERIES_LEN + 1)) origin "$old_sha" 2>/dev/null &&
-      [[ "$(git_in rev-parse "$old_sha~$SERIES_LEN" 2>/dev/null)" == "$upstream_sha" ]] &&
-      [[ "$(git_in rev-parse "$old_sha^{tree}")" == "$(git_in rev-parse "result^{tree}")" ]]; then
-      changed=false
-    fi
+  # What the fork branches hold now, and whether this run would change them.
+  # A branch is current when it is this upstream head plus a series with the
+  # same tree as the rebase just made.
+  is_current() {
+    [[ -n "$1" ]] &&
+      git_in fetch -q --no-tags --depth=$((SERIES_LEN + 1)) origin "$1" 2>/dev/null &&
+      [[ "$(git_in rev-parse "$1~$SERIES_LEN" 2>/dev/null)" == "$upstream_sha" ]] &&
+      [[ "$(git_in rev-parse "$1^{tree}")" == "$(git_in rev-parse "result^{tree}")" ]]
+  }
+  local branch old_sha legacy_old_sha="" changed=true
+  branch=$(branch_of "$channel")
+  old_sha=$(remote_sha "refs/heads/$branch")
+  if legacy_publish; then legacy_old_sha=$(remote_sha "refs/heads/$channel"); fi
+  if is_current "$old_sha" && { ! legacy_publish || is_current "$legacy_old_sha"; }; then
+    changed=false
   fi
 
   git_in bundle create -q "$BUNDLE" refs/heads/result "^$upstream_sha"
   out "upstream_sha=$upstream_sha"
   out "result_sha=$result_sha"
   out "old_sha=$old_sha"
+  out "legacy_old_sha=$legacy_old_sha"
   out "changed=$changed"
   {
-    echo "### \`$channel\`"
+    echo "### \`$branch\` (upstream \`$channel\`)"
     echo
     echo "- upstream: \`$upstream_sha\`"
     echo "- rebased:  \`$result_sha\`"
     echo "- current:  \`${old_sha:-<branch does not exist>}\`"
+    if legacy_publish; then
+      echo "- current \`$channel\` (unsuffixed): \`${legacy_old_sha:-<branch does not exist>}\`"
+    fi
     echo "- changed:  $changed"
   } | summary
 }
@@ -231,14 +273,26 @@ cmd_build() {
 # smoke-test the result. The branch is already published; a failure here
 # opens the channel's issue.
 cmd_verify() {
-  local channel=$1 system=$2 attr available ref rev profile failed=()
+  local channel=$1 system=$2 attr available ref rev profile branch failed=()
   : "${RESULT_SHA:?}" "${UPSTREAM_SHA:?}"
   export NIXPKGS_ALLOW_UNFREE=1
-  ref="github:$FORK/$channel"
+  branch=$(branch_of "$channel")
+  ref="github:$FORK/$branch"
   rev=$(nix flake metadata --json --refresh "$ref" | jq -r .locked.rev)
   if [[ "$rev" != "$RESULT_SHA" ]]; then
-    echo "::notice::$channel moved on to $rev since this run published $RESULT_SHA; not verifying"
+    echo "::notice::$branch moved on to $rev since this run published $RESULT_SHA; not verifying"
     return 0
+  fi
+  # The unsuffixed name carries the same revision, so installing from it would
+  # repeat the install below; check that it resolves to that revision.
+  if legacy_publish; then
+    local legacy_rev
+    legacy_rev=$(nix flake metadata --json --refresh "github:$FORK/$channel" | jq -r .locked.rev)
+    if [[ "$legacy_rev" == "$RESULT_SHA" ]]; then
+      echo "- verified: \`github:$FORK/$channel\` resolves to \`$RESULT_SHA\`" | summary
+    else
+      echo "::notice::$channel moved on to $legacy_rev since this run published $RESULT_SHA"
+    fi
   fi
   cd "$WORK"
   for attr in $(carried_packages); do
@@ -262,8 +316,8 @@ cmd_verify() {
   done
   if [[ ${#failed[@]} -gt 0 ]]; then
     printf 'Installing from the published %s failed on %s: %s\n' \
-      "$channel" "$system" "${failed[*]}" >"${RUNNER_TEMP:-/tmp}/failure.md"
-    die "verification of published $channel failed on $system: ${failed[*]}"
+      "$branch" "$system" "${failed[*]}" >"${RUNNER_TEMP:-/tmp}/failure.md"
+    die "verification of published $branch failed on $system: ${failed[*]}"
   fi
 }
 
@@ -271,21 +325,36 @@ cmd_verify() {
 cmd_publish() {
   local channel=$1
   : "${RESULT_SHA:?}" "${SERIES_HEAD:?}"
-  local old="${OLD_SHA:-}" tracks
+  local tracks branch names=() args=() n ref stamp got
   tracks=$(jq -r .seriesTracks "$CONFIG")
+  branch=$(branch_of "$channel")
   git_in remote set-url --push origin "git@github.com:$FORK.git"
   # --force-with-lease against the tip this run started from: if anything else
-  # moved the branch in the meantime, do not overwrite it.
+  # moved a branch in the meantime, do not overwrite it. The push is atomic, so
+  # the two names never disagree.
   # Channel branches are rewritten, but a user's flake.lock names a revision:
-  # keep every published revision reachable under refs/archive/, which is not
-  # a branch or tag and so stays out of listings.
-  local stamp
+  # keep every published revision reachable under refs/archive/<branch>/,
+  # which is not a branch or tag and so stays out of listings.
   stamp=$(date -u +%Y%m%dT%H%M%SZ)
-  git_in push --atomic origin \
-    --force-with-lease="refs/heads/$channel:$old" \
-    "$RESULT_SHA:refs/heads/$channel" \
-    "$RESULT_SHA:refs/archive/$channel/$stamp"
-  echo "published $channel = $RESULT_SHA (archived as refs/archive/$channel/$stamp)" | summary
+  names=("$branch")
+  args=(--force-with-lease="refs/heads/$branch:${OLD_SHA:-}")
+  if legacy_publish; then
+    names+=("$channel")
+    args+=(--force-with-lease="refs/heads/$channel:${LEGACY_OLD_SHA:-}")
+  fi
+  for n in "${names[@]}"; do
+    args+=("$RESULT_SHA:refs/heads/$n" "$RESULT_SHA:refs/archive/$n/$stamp")
+  done
+  git_in push --atomic origin "${args[@]}"
+
+  # Read the published refs back from GitHub.
+  for n in "${names[@]}"; do
+    for ref in "refs/heads/$n" "refs/archive/$n/$stamp"; do
+      got=$(remote_sha "$ref")
+      [[ "$got" == "$RESULT_SHA" ]] || die "$ref is ${got:-missing} after the push, not $RESULT_SHA"
+    done
+    echo "published $n = $RESULT_SHA (archived as refs/archive/$n/$stamp)" | summary
+  done
 
   # The series branch itself follows the channel it tracks, so it never falls
   # far behind upstream. A human push since the run started wins.

@@ -1,6 +1,7 @@
 # Rebase the carried package series (branch `metacraft`) onto every upstream
 # channel listed in channels.json, build the carried packages, and publish each
-# channel branch only when its builds are green. See README.md.
+# channel's `<channel>-metacraft` branch only when its builds are green. See
+# README.md.
 name: Sync channels
 
 on:
@@ -9,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       channels:
-        description: "Comma-separated channels to sync (default: every active channel)"
+        description: "Comma-separated upstream channels to sync, e.g. nixos-26.05 (default: every active channel)"
         required: false
         default: ""
       force_build:
@@ -35,6 +36,7 @@ jobs:
       series_base: ${{ steps.plan.outputs.series_base }}
       series_len: ${{ steps.plan.outputs.series_len }}
       series_head: ${{ steps.plan.outputs.series_head }}
+      legacy_overdue: ${{ steps.plan.outputs.legacy_overdue }}
     steps:
       - uses: actions/checkout@v7
       - id: plan
@@ -52,13 +54,30 @@ jobs:
           cat > "$RUNNER_TEMP/body.md" <<BODY
           Upstream NixOS/nixpkgs has \`$RELEASE\`, which \`channels.json\` does not list.
 
-          Add \`$RELEASE\` and \`$darwin\` to \`channels.json\` on the default branch, and
-          mark a release that upstream no longer supports as \`deprecated\` (README.md,
+          Add \`$RELEASE\` and \`$darwin\` to \`channels.json\` on the default branch (the
+          next run creates \`$RELEASE-metacraft\` and \`$darwin-metacraft\`), and mark a
+          release that upstream no longer supports as \`deprecated\` (README.md,
           "Adding and retiring channels").
 
           Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           BODY
           scripts/issue.sh open "New NixOS release: $RELEASE" "$RUNNER_TEMP/body.md"
+      - name: Ask for the unsuffixed branches to be frozen
+        if: steps.plan.outputs.legacy_overdue != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          UNTIL: ${{ steps.plan.outputs.legacy_overdue }}
+        run: |
+          cat > "$RUNNER_TEMP/body.md" <<BODY
+          The transition window for the unsuffixed channel branches ended on $UNTIL, and
+          this run still published them (\`legacyBranches.publish\` in \`channels.json\`).
+
+          Freeze them as README.md, "Branch names", describes: turn the flag off, then
+          tag each final tip \`archive/branch/<name>\`.
+
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          BODY
+          scripts/issue.sh open "Freeze the unsuffixed channel branches" "$RUNNER_TEMP/body.md"
 
   sync:
     needs: plan
