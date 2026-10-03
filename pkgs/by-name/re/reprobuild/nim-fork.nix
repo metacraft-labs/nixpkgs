@@ -1,4 +1,4 @@
-# Synced verbatim from metacraft-labs/reprobuild v0.2.5 (38bcad0515a363bf928f8654435e87636c968796)
+# Synced verbatim from metacraft-labs/reprobuild v0.2.6 (466bd8d7a4192786f836bf5f74a119bcf15ff05d)
 #   nix/pkgs/by-name/re/reprobuild/nim-fork.nix
 # by ./update.sh. Do not edit here: change it in reprobuild, release, re-run
 # ./update.sh. The default source arguments below are not used by this
