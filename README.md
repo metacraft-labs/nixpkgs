@@ -295,14 +295,25 @@ Every package here is therefore one of:
 
 A new NixOS release (`nixos-YY.MM` with its `nixpkgs-YY.MM-darwin`) is added
 to `channels.json` with `"status": "active"`; the next run creates both
-branches, `nixos-YY.MM-metacraft` and `nixpkgs-YY.MM-darwin-metacraft`. When upstream stops supporting a release, set its entries to
+branches, `nixos-YY.MM-metacraft` and `nixpkgs-YY.MM-darwin-metacraft`.
+When upstream stops supporting a release, set its entries to
 `"status": "deprecated"`: the branch is no longer synced, and is **not
 deleted**, because a user's `flake.lock` may still name it. List it in the
 table above as deprecated.
 
 ## Other branches
 
-- `master`: an old, unmaintained mirror of upstream `master`. Not synced.
-- `metacraft-labs-packages-2026-06-04`, `reprobuild-m4`: frozen snapshots
-  from before the channel branches existed, kept because lock files may name
-  them. Use a channel branch instead.
+- `metacraft`: where our packages are authored (see above).
+- `nixos-unstable`, `nixpkgs-unstable`, `nixos-26.05`, `nixpkgs-26.05-darwin`:
+  the old bare channel names, published alongside the `-metacraft` branches
+  until 2026-10-17 and then frozen (see "Branch names").
+
+**Retired branches** keep their last tip as the tag `archive/branch/<name>`,
+so a revision a lock file names stays fetchable. On 2026-10-03:
+
+- `metacraft-labs-packages-2026-06-04` (`06a4933d0d186ce7f63cff8df4c2063574fc21ee`)
+  and `reprobuild-m4` (`bc755f3034ad75df6a9bfa4c67fa187bbd3f0dc3`), snapshots
+  from before the channel branches existed, were tagged and deleted. The
+  packages they carried are superseded by the series on `metacraft`.
+- `master` (`15869aa3b532ebbf7561bea7932ddcd19b21c75e`), an unmaintained mirror
+  of an upstream `master` commit that carried nothing of ours, was deleted.
