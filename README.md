@@ -82,18 +82,20 @@ name them.
 
 | Attribute | Version | Platforms | Upstream status |
 |---|---|---|---|
-| `reprobuild` (`repro`) | 0.2.5 | x86_64-linux, aarch64-darwin (checked); aarch64-linux, x86_64-darwin (declared) | not submitted: builds with a fork of the Nim compiler |
+| `reprobuild` (`repro`) | 0.2.6 | x86_64-linux, aarch64-darwin (checked); aarch64-linux, x86_64-darwin (declared) | not submitted: builds with a fork of the Nim compiler |
 | `codetracer` (`ct`) | 25.11.1 | x86_64-linux | not submitted: prebuilt unfree binary |
-| `gosti` (`vm-harness` alias) | 0.1.0 | x86_64-linux, aarch64-darwin | qualified binary package; upstream submission pending |
-| `io-mon` | 0.1.0 | x86_64-linux, aarch64-darwin | qualified binary package; upstream submission pending |
-| `runquota` (`runquotad` daemon) | 0.1.0 | x86_64-linux, aarch64-darwin | qualified binary package; upstream submission pending |
+| `gosti` (`vm-harness` alias) | 0.1.2 | x86_64-linux, aarch64-darwin | qualified binary package; upstream submission pending |
+| `io-mon` | 0.1.1 | x86_64-linux, aarch64-darwin | qualified binary package; upstream submission pending |
+| `runquota` (`runquotad` daemon) | 0.1.3 | x86_64-linux, aarch64-darwin | qualified binary package; upstream submission pending |
 
-All packages are on every channel branch, at the versions above. At automation
-commit `611cbc1`, [run 36966166109](https://github.com/metacraft-labs/nixpkgs/actions/runs/36966166109)
-builds and publishes the three tool recipes on all four branches and verifies
-their installed payloads and real commands again from published profiles on
-Linux x86_64 and macOS ARM64. Each package's `package.nix` explains its
-upstreaming status.
+The Gosti, io-mon and RunQuota versions above are verified on all four channel
+branches by
+[run 37233823584](https://github.com/metacraft-labs/nixpkgs/actions/runs/37233823584)
+at automation commit `b100c929`, using canonical package source `bfd724d226a6`.
+All 19 required jobs pass: planning, four rebases, five builds, four publications
+and five live installation checks. The live checks compare installed payloads
+and exercise real commands on Linux x86_64 and macOS ARM64. Each package's
+`package.nix` explains its upstreaming status.
 
 ## Installing
 
