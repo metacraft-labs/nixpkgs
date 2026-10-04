@@ -1,13 +1,13 @@
 {
   "platforms": {
     "aarch64-darwin": {
-      "hash": "sha256-YVsYYDelZ1vIlNPYyH7tJJ2ZGXrnQLudbxS0nJx0aSA=",
-      "url": "https://github.com/metacraft-labs/gosti/releases/download/v0.1.1/gosti-0.1.1-darwin-aarch64.tar.gz"
+      "hash": "sha256-f8tsT/Z/2dvys+7GXaneZxnhDErnsXn+IEh8z1/D0nw=",
+      "url": "https://github.com/metacraft-labs/gosti/releases/download/v0.1.2/gosti-0.1.2-darwin-aarch64.tar.gz"
     },
     "x86_64-linux": {
-      "hash": "sha256-Bv8GV3/SF/Ikqg2yc06dLzNCPZTD3rCBv+06QcuxsfQ=",
-      "url": "https://github.com/metacraft-labs/gosti/releases/download/v0.1.1/gosti-0.1.1-linux-x86_64.tar.gz"
+      "hash": "sha256-zkkl+CBBlknWgo6l5ynXmRxf9LbRgFl48cYi5tAT4iI=",
+      "url": "https://github.com/metacraft-labs/gosti/releases/download/v0.1.2/gosti-0.1.2-linux-x86_64.tar.gz"
     }
   },
-  "version": "0.1.1"
+  "version": "0.1.2"
 }
