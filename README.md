@@ -242,6 +242,21 @@ Channel pushes use a write deploy key of this repository (secret
 refuses a token-authenticated push whose commits change `.github/workflows/`,
 and every rebase onto a newer upstream carries upstream's workflow changes.
 
+**Only this automation moves a channel branch.** Since 2026-10-04 the
+repository ruleset `metacraft-channel-branches` covers `refs/heads/*-metacraft`.
+It refuses creation, update, force-update and deletion to everyone,
+administrators included, except the repository's deploy keys. `CHANNEL_PUSH_KEY`
+is the fork's only write deploy key. GitHub's deploy-key bypass covers every
+deploy key of a repository, so adding another write deploy key would widen the
+exception: don't. The ruleset does not cover `metacraft` or the unsuffixed
+transition names. A second ruleset, `forbidden-branches`, refuses `agents` and
+`agents-to-dev-*`: agent work lands on `metacraft`. Both come from the
+organization's governance root in `infra`
+(`terraform/github/metacraft-governance-prod/`): the channel ruleset from
+`governance.nix`, the fork's `forbidden-branches` entry from
+`forbidden-branches-config.nix`. Change them there, not in the repository
+settings.
+
 ## Maintaining packages
 
 **Releasing a new version** is part of the release (a release is not done
