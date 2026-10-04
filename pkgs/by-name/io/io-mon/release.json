@@ -1,13 +1,13 @@
 {
   "platforms": {
     "aarch64-darwin": {
-      "hash": "sha256-5bD4PJ7Ok+Ug4PJ7lkwekAXzQaOLpOVuuTnBT3cpXhY=",
-      "url": "https://github.com/metacraft-labs/io-mon/releases/download/v0.1.0/io-mon-0.1.0-darwin-aarch64.tar.gz"
+      "hash": "sha256-Dx+tl+5PDjGFp2KqwqIen+b7/wB1IcVHdPVK2E/zEzM=",
+      "url": "https://github.com/metacraft-labs/io-mon/releases/download/v0.1.1/io-mon-0.1.1-darwin-aarch64.tar.gz"
     },
     "x86_64-linux": {
-      "hash": "sha256-KysfLRNTNhBo/lT0q5LYTmNXrFnoKEI3XiYAsAn6LHE=",
-      "url": "https://github.com/metacraft-labs/io-mon/releases/download/v0.1.0/io-mon-0.1.0-linux-x86_64.tar.gz"
+      "hash": "sha256-myupMBjV5LL3+IJ5YFxGy5+mvMmYYPjht+xfgqnYfbk=",
+      "url": "https://github.com/metacraft-labs/io-mon/releases/download/v0.1.1/io-mon-0.1.1-linux-x86_64.tar.gz"
     }
   },
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
