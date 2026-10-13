@@ -1,4 +1,4 @@
-# Synced verbatim from metacraft-labs/reprobuild v0.2.6 (466bd8d7a4192786f836bf5f74a119bcf15ff05d)
+# Synced verbatim from metacraft-labs/reprobuild v0.2.10 (064daf5b154ea6a0758ddb2dcbcbc07685216e44)
 #   nix/pkgs/by-name/re/reprobuild/nim-fork.nix
 # by ./update.sh. Do not edit here: change it in reprobuild, release, re-run
 # ./update.sh. The default source arguments below are not used by this
@@ -47,8 +47,8 @@
   forkSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
     repo = "nim";
-    rev = "0b5b5ec507d2d9c731d222184c625851377a02c8";
-    hash = "sha256-0E1OGS2qRaKobiq2ZGi+nD2djgoLrqXApJzGmRGAFt0=";
+    rev = "f902ddcb7a29b262385645809aede76834015278";
+    hash = "sha256-DCzEpcXr52up6f4JoyjmxfjrldqVKHVyljHN4EwDQDw=";
   },
   csourcesSrc ? fetchFromGitHub {
     owner = "nim-lang";
@@ -59,8 +59,8 @@
   traceFormatSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
     repo = "codetracer-trace-format-nim";
-    rev = "bc7c5d256d0a4b1246f9a9bbb51a83071d3d8e26";
-    hash = "sha256-feW0vlgU6JTVkCLnZ1iyS2FwjXQuRCXHr3V+27oyDAw=";
+    rev = "051efd22b00ec3b88676fb07755a65c5a4ca8fde";
+    hash = "sha256-+3Q3qbwb2/EiLjzLynPGkXLXMwZBLEV8//KD/OIuAaM=";
   },
   stewSrc ? fetchFromGitHub {
     owner = "status-im";
