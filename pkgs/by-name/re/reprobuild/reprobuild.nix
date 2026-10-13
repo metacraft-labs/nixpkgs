@@ -1,4 +1,4 @@
-# Synced verbatim from metacraft-labs/reprobuild v0.2.6 (466bd8d7a4192786f836bf5f74a119bcf15ff05d)
+# Synced verbatim from metacraft-labs/reprobuild v0.2.10 (064daf5b154ea6a0758ddb2dcbcbc07685216e44)
 #   nix/pkgs/by-name/re/reprobuild/package.nix
 # by ./update.sh. Do not edit here: change it in reprobuild, release, re-run
 # ./update.sh. The default source arguments below are not used by this
@@ -90,8 +90,8 @@
   ctTraceFormatSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
     repo = "codetracer-trace-format-nim";
-    rev = "bc7c5d256d0a4b1246f9a9bbb51a83071d3d8e26";
-    hash = "sha256-feW0vlgU6JTVkCLnZ1iyS2FwjXQuRCXHr3V+27oyDAw=";
+    rev = "051efd22b00ec3b88676fb07755a65c5a4ca8fde";
+    hash = "sha256-+3Q3qbwb2/EiLjzLynPGkXLXMwZBLEV8//KD/OIuAaM=";
   },
   # THIS DEFAULT HAD DRIFTED 46 COMMITS BEHIND `flake.lock`, and the drift is
   # exactly what the "Every entry mirrors a `flake.lock` pin" note above is
@@ -111,8 +111,8 @@
   ioMonSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
     repo = "io-mon";
-    rev = "53994c0ca76f263ff04f046b2f99d98a038d41f3";
-    hash = "sha256-C59v0x/56TnymTBVYCKF3lmaUHeny21iXofckafOuF0=";
+    rev = "e75019940be4722fcaf11f1b239de37adae54f41";
+    hash = "sha256-ZhlF06zxG00Ieaakuh0TCw1SUZv7Y9L7nwIL9k0TlZo=";
   },
   shmGsetSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
@@ -129,8 +129,8 @@
   codetracerSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
     repo = "codetracer";
-    rev = "033f00a1d9df8d7e2cb0368010746acc272a9dce";
-    hash = "sha256-L5N0v9haMBtmCjkt3aw4V6dBPPJqqHY17YZL2Muedsk=";
+    rev = "45aa9b52acde3dd2c6daae7255dbb1c0a5cc46fd";
+    hash = "sha256-oOzMNLgyTX9Y0NSmVZxkxkgyWBtYsWt9g560RgZd/+o=";
   },
   ctTestRunnerSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
@@ -151,8 +151,8 @@
   runquotaSrc ? fetchFromGitHub {
     owner = "metacraft-labs";
     repo = "runquota";
-    rev = "7a79877992908f64d3c8318bb7b20078ff5d1bf4";
-    hash = "sha256-7wTdJkutu2VDQFuKIzZgAzJ7X8J3pHXbr3dEcqcVH2Q=";
+    rev = "3590066e9c9dc82ca758ff2d7918f3b6f8304f35";
+    hash = "sha256-KD47AShW5Y8trE9vY4WrPtk/ot6qagq3p4vhPw/mQBU=";
   },
 }:
 let
