@@ -35,48 +35,23 @@ Until 2026-10-02 the channel branches carried the bare upstream names
 The [branching policy](https://github.com/metacraft-labs/metacraft-dev-guidelines/blob/latest/policies/branching-policy.md#nixpkgs-forks-upstream-channel-metacraft-branches-2026-10-02)
 now names them `<upstream-channel>-metacraft`.
 
-**Until 2026-10-17, both names are published.** Each sync pushes the same
-revision to `<channel>-metacraft` and to the unsuffixed `<channel>` in one
-atomic push, and archives it under both. Released installers and existing
-configurations that name the old branches keep receiving updates during the
-window. Switch to the `-metacraft` name now: the old names stop moving after
-the window.
+**The old names were frozen on 2026-10-20.** From 2026-10-02 until
+2026-10-17 each sync pushed the same revision to `<channel>-metacraft` and to
+the unsuffixed `<channel>` in one atomic push, and archived it under both. On
+2026-10-20 the `legacyBranches` flag in `channels.json` was turned off
+(`"publish": false`, commit `faf40d2`), so only the `-metacraft` branches move
+now. Use the `-metacraft` names.
 
-The cut-over is the `legacyBranches` flag in `channels.json`:
+The old branches are not deleted, because a user's `flake.lock` or channel may
+still name them. Each one stays at its final tip, which is also tagged
+`archive/branch/<name>`:
 
-```json
-"legacyBranches": { "publish": true, "until": "2026-10-17" }
-```
-
-While `publish` is `true`, the old names are published. Once `until` has passed,
-every run opens the issue `Freeze the unsuffixed channel branches` until the
-flag is turned off.
-
-**Freezing the old names (on or after 2026-10-17).** Not done yet. In this
-order:
-
-1. On `metacraft-ci`, set `"publish": false` and push the commit
-   (fast-forward, signed). From the next sync on, only the `-metacraft`
-   branches move.
-2. Check that no sync run is in progress:
-   `gh run list -R metacraft-labs/nixpkgs -w sync-channels.yml -s in_progress`.
-3. Tag each final tip as `archive/branch/<name>` and check the tag:
-
-   ```sh
-   for b in nixos-unstable nixpkgs-unstable nixos-26.05 nixpkgs-26.05-darwin; do
-     sha=$(gh api "repos/metacraft-labs/nixpkgs/branches/$b" --jq .commit.sha)
-     gh api "repos/metacraft-labs/nixpkgs/git/refs" \
-       -f ref="refs/tags/archive/branch/$b" -f sha="$sha" --jq .object.sha
-     [ "$(git ls-remote https://github.com/metacraft-labs/nixpkgs "refs/tags/archive/branch/$b" | cut -f1)" = "$sha" ] &&
-       echo "$b frozen at $sha"
-   done
-   ```
-
-4. Mark the old names as frozen in this README, and in the policy's
-   current-state note.
-
-The frozen branches are not deleted: a user's `flake.lock` or channel may still
-name them.
+| Old name | Frozen at | Same revision as |
+|---|---|---|
+| `nixos-unstable` | `5bd1fecc1df5474fdd38db00fb296f95f183463b` | `nixos-unstable-metacraft` on 2026-10-20 |
+| `nixpkgs-unstable` | `b95be3b194817ec25e73a35c868eb61fd71fe397` | `nixpkgs-unstable-metacraft` on 2026-10-20 |
+| `nixos-26.05` | `9e653044fec7c25055b7f39ff89602ec634f56e8` | `nixos-26.05-metacraft` on 2026-10-20 |
+| `nixpkgs-26.05-darwin` | `6a7bac9af83ab4281d239f607d83fa5abe8e6778` | `nixpkgs-26.05-darwin-metacraft` on 2026-10-20 |
 
 ## Packages
 
@@ -202,8 +177,8 @@ runs **daily at 04:23 UTC** and on demand. For each channel in
    [`scripts/smoke.sh`](scripts/smoke.sh) uses each package: on Linux,
    `repro build` builds and runs a C/Make example project.
 3. **publish** only if every build of that channel is green: force-push
-   `<channel>-metacraft` (and, during the transition window, the unsuffixed
-   `<channel>`) in one atomic push, with a lease on the tip each had when the
+   `<channel>-metacraft` (and, while `legacyBranches.publish` is `true`, the
+   unsuffixed `<channel>`) in one atomic push, with a lease on the tip each had when the
    run started. **A broken rebase or build never replaces a working branch.**
    Each published revision is also kept under
    `refs/archive/<branch>/<timestamp>` for every name it is published under, so
@@ -214,8 +189,8 @@ runs **daily at 04:23 UTC** and on demand. For each channel in
 4. **verify** the published branch the way a user installs from it:
    `nix build github:metacraft-labs/nixpkgs/<channel>-metacraft#<package>`, then
    `nix profile install` into a throwaway profile and the same smoke test.
-   During the transition window it also checks that the unsuffixed name
-   resolves to the same revision. A failure here cannot un-publish, so it opens
+   While `legacyBranches.publish` is `true` it also checks that the unsuffixed
+   name resolves to the same revision. A failure here cannot un-publish, so it opens
    the channel's issue.
 
 After `nixos-unstable-metacraft` publishes, `metacraft` itself is moved onto
@@ -323,7 +298,7 @@ table above as deprecated.
 - `metacraft`: where our packages are authored (see above).
 - `nixos-unstable`, `nixpkgs-unstable`, `nixos-26.05`, `nixpkgs-26.05-darwin`:
   the old bare channel names, published alongside the `-metacraft` branches
-  until 2026-10-17 and then frozen (see "Branch names").
+  until 2026-10-17 and frozen on 2026-10-20 (see "Branch names").
 
 **Retired branches** keep their last tip as the tag `archive/branch/<name>`,
 so a revision a lock file names stays fetchable. On 2026-10-03:
