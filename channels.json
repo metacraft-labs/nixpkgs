@@ -2,7 +2,7 @@
   "series": "metacraft",
   "seriesTracks": "nixos-unstable",
   "branchSuffix": "-metacraft",
-  "legacyBranches": { "publish": true, "until": "2026-10-17" },
+  "legacyBranches": { "publish": false, "until": "2026-10-17" },
   "runners": {
     "x86_64-linux": "ubuntu-latest",
     "aarch64-darwin": "macos-latest"
